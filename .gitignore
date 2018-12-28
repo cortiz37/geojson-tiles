@@ -113,3 +113,8 @@ fabric.properties
 # Editor-based Rest Client
 .idea/httpRequests
 
+.DS_Store
+api/.DS_Store
+data/.DS_Store
+geojson-tiles.iml
+public/.DS_Store
