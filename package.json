@@ -1,0 +1,24 @@
+{
+  "name": "com.tiles",
+  "version": "1.0.0",
+  "description": "geojson tiles",
+  "main": "index.js",
+  "scripts": {
+    "test": "test"
+  },
+  "author": "carlos.pupo",
+  "license": "ISC",
+  "devDependencies": {
+    "nodemon": "^1.18.4"
+  },
+  "dependencies": {
+    "canvas": "^2.2.0",
+    "cors": "^2.8.4",
+    "dotenv": "^6.1.0",
+    "express": "^4.16.3",
+    "express-fileupload": "^1.0.0",
+    "lru-cache": "^5.1.1",
+    "npm": "^6.4.1",
+    "pug": "^2.0.3"
+  }
+}

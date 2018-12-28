@@ -1,0 +1,49 @@
+body {
+    padding: 0;
+    margin: 0
+}
+
+html, body, #map {
+    height: 100%;
+    width: 100%;
+}
+
+.menu {
+    margin: 20px;
+    padding: 0 20px;
+}
+
+.menu h3 {
+    border-bottom: darkgrey solid 2px;
+}
+
+.menu h3 {
+    padding: 2px;
+}
+
+.menu div {
+    margin: 5px;
+}
+
+.menu .subtitle {
+    background: lightgrey;
+}
+
+.leaflet-container {
+    background: #fff;
+}
+
+.interactive {
+    border: solid 2px #aaaaaa;
+    border-radius: 40px;
+    margin: 25px 0 0 100px;
+    padding: 15px 20px;
+    text-align: center;
+    float: left;
+    position: absolute;
+    z-index: 1000000;
+}
+
+.interactive label {
+    margin: 0 10px;
+}

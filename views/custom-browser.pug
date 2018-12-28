@@ -1,0 +1,18 @@
+extends tiles-layers-browser
+
+block top
+    script(src='js/custom-api.js')
+    div(class='interactive')
+        b
+            span Render in BROWSER
+        label(for='workspaces') Workspace
+        select(id='workspaces' onchange='updateTiles()')
+        label(for='tiles') Tiles
+        select(id='tiles' onchange='renderTiles()')
+
+        script(type='text/javascript').
+            workspaces()
+
+block main
+    script(type='text/javascript').
+        requestLayers = "#{requestLayers}";

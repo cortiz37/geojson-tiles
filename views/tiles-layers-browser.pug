@@ -1,0 +1,12 @@
+html
+    include include/header-browser
+    body
+        block top
+        div(id='map')
+            script(type='text/javascript').
+                const tiles = "#{tiles}";
+
+            block main
+                script(type='text/javascript').
+                    requestLayers = "#{requestLayers}";
+                    generateLayers()
