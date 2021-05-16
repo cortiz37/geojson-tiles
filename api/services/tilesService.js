@@ -3,6 +3,7 @@
 const constants = require("../util/constants");
 const geojsonvt = require('../util/geojson-vt');
 const cacheService = require('./cacheService');
+const fileService = require('../controllers/files');
 
 const fs = require('fs');
 const path = require('path');
@@ -15,24 +16,32 @@ exports.getTilesLayerInfo = function (workspace, tilesId) {
     const id = getTilesId(workspace, tilesId);
     const _this = this;
     return cacheService.getCacheValue(id + constants.CACHE_TILES_LAYERS, function (err, value) {
-        let currentTilesIndex = _this.getTilesSpace(workspace, tilesId);
-        if (currentTilesIndex) {
-            return {
-                layers: Array.from(new Set(
-                    Object.keys(currentTilesIndex.tiles)
-                        .map(k => currentTilesIndex.tiles[k].features)
-                        .map(f => f.map(g => g.tags.Layer))
-                        .reduce((a, b) => a.concat(b), [])
-                )),
-                tileSize: currentTilesIndex.options.tileSize
-            };
+        let layerInfo = fileService.getTileLayersInfoFromFileCache(workspace, tilesId);
+        if (!layerInfo) {
+            let currentTilesIndex = _this.getTilesSpace(workspace, tilesId);
+            if (currentTilesIndex) {
+                layerInfo = {
+                    layers: Array.from(new Set(
+                        Object.keys(currentTilesIndex.tiles)
+                            .map(k => currentTilesIndex.tiles[k].features)
+                            .map(f => f.map(g => g.tags.Layer))
+                            .reduce((a, b) => a.concat(b), [])
+                    )),
+                    tileSize: currentTilesIndex.options.tileSize
+                };
+                fileService.saveTileLayersInfoFileCache(workspace, tilesId, layerInfo);
+
+            }
         }
+        return layerInfo;
     });
 };
 
 exports.clearTilesSpace = function (workspace, tilesId) {
     const id = getTilesId(workspace, tilesId);
     cacheService.deleteCacheValue(id);
+    cacheService.deleteCacheValue(id + constants.CACHE_TILES_LAYERS);
+    fileService.removeTileFileCache(workspace, tilesId);
 };
 
 exports.getTilesData = function (workspace, tilesId, z, x, y) {
@@ -60,7 +69,7 @@ exports.getLayersInWorkspace = function (workspace, res) {
     const workspacePath = path.join(__dirname, constants.FILE_DIRECTORY) + '/' + workspace + '/';
     if (fs.existsSync(workspacePath)) {
         res.json(fs.readdirSync(workspacePath)
-            .filter(f => f.indexOf('.') != 0).map(f => f.substring(0, f.lastIndexOf('.') != -1 ? f.lastIndexOf('.') : f.length))
+            .filter(f => f.endsWith(constants.FILE_EXTENSION)).map(f => f.substring(0, f.lastIndexOf('.') != -1 ? f.lastIndexOf('.') : f.length))
         );
         return true;
     }
@@ -112,30 +121,52 @@ function bbox(data) {
     let maxy = -Infinity;
 
     data.features.map(f => {
-        const coordinates = f.geometry.coordinates;
-        if (f.geometry.type === 'Point') {
-            minx = Math.min(minx, coordinates[0]);
-            maxx = Math.max(maxx, coordinates[0]);
-            miny = Math.min(miny, coordinates[1]);
-            maxy = Math.max(maxy, coordinates[1]);
-        } else if (f.geometry.type === 'LineString') {
-            coordinates.map(c => {
-                minx = Math.min(minx, c[0]);
-                maxx = Math.max(maxx, c[0]);
-                miny = Math.min(miny, c[1]);
-                maxy = Math.max(maxy, c[1]);
-            })
-        } else {
-            coordinates.map(c => {
-                c.map(cc => {
-                    minx = Math.min(minx, cc[0]);
-                    maxx = Math.max(maxx, cc[0]);
-                    miny = Math.min(miny, cc[1]);
-                    maxy = Math.max(maxy, cc[1]);
-                })
-            })
-        }
+        const result = simpleBbox(f);
+        minx = Math.min(minx, result[0]);
+        miny = Math.min(miny, result[1]);
+        maxx = Math.max(maxx, result[2]);
+        maxy = Math.max(maxy, result[3]);
     });
+
+    return Array(minx, miny, maxx, maxy);
+}
+
+function simpleBbox(f) {
+    let minx = Infinity;
+    let miny = Infinity;
+    let maxx = -Infinity;
+    let maxy = -Infinity;
+
+    if (f.geometry.type === 'Point') {
+        minx = Math.min(minx, f.geometry.coordinates[0]);
+        maxx = Math.max(maxx, f.geometry.coordinates[0]);
+        miny = Math.min(miny, f.geometry.coordinates[1]);
+        maxy = Math.max(maxy, f.geometry.coordinates[1]);
+    } else if (f.geometry.type === 'LineString') {
+        f.geometry.coordinates.map(c => {
+            minx = Math.min(minx, c[0]);
+            maxx = Math.max(maxx, c[0]);
+            miny = Math.min(miny, c[1]);
+            maxy = Math.max(maxy, c[1]);
+        })
+    } else if (f.geometry.type === 'GeometryCollection') {
+        for (let index in f.geometries) {
+            const partial = simpleBbox(f.geometries[index]);
+            minx = Math.min(minx, partial[0]);
+            miny = Math.min(miny, partial[1]);
+            maxx = Math.max(maxx, partial[2]);
+            maxy = Math.max(maxy, partial[3]);
+        }
+    } else {
+        f.geometry.coordinates.map(c => {
+            c.map(cc => {
+                minx = Math.min(minx, cc[0]);
+                maxx = Math.max(maxx, cc[0]);
+                miny = Math.min(miny, cc[1]);
+                maxy = Math.max(maxy, cc[1]);
+            })
+        })
+    }
 
     return Array(minx, miny, maxx, maxy);
 }
@@ -147,5 +178,9 @@ function decimalFactor(constant, minValue) {
 
 function projectedTileSize(data) {
     const factor = decimalFactor(constants.RENDER_TILES_SIZE, projectionFactor(data));
-    return constants.RENDER_TILES_SIZE * factor;
+    const tileSize = constants.RENDER_TILES_SIZE * factor;
+    if (constants.RENDER_MAX_TILES_SIZE < tileSize) {
+        return constants.RENDER_MAX_TILES_SIZE;
+    }
+    return tileSize;
 }

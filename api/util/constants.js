@@ -34,6 +34,7 @@ module.exports = Object.freeze({
     RENDER_DEFAULT_SIZE: 0.2,
     RENDER_TILES_GUIDES: process.env.RENDER_TILES_GUIDES ? process.env.RENDER_TILES_GUIDES === 'true' : false,
     RENDER_TILES_SIZE: 256,
+    RENDER_MAX_TILES_SIZE: 32767,
     RENDER_TILES_CONTENT_TYPE: 'image/png',
     RENDER_TILES_TEXTS: process.env.RENDER_TILES_TEXTS ? process.env.RENDER_TILES_TEXTS === 'true' : true
 });

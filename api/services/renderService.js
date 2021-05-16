@@ -63,7 +63,7 @@ function setStyles(ctx, feature, zoom) {
     const styles = getGenericStyles(feature.tags);
     ctx.strokeStyle = styles.color;
     ctx.fillStyle = styles.color;
-    ctx.lineWidth = styles.width * 2;
+    //ctx.lineWidth = styles.width * 2;
 
     var z = 1 << zoom;
     ctx.font = styles.size * z + 'px ' + styles.font;
