@@ -72,3 +72,30 @@ https://github.com/cortiz37/geojson-vt
 <img width="1439" alt="1" src="https://user-images.githubusercontent.com/10333549/118406370-6810e800-b641-11eb-8074-8475b9775427.png">
 
 <img width="1440" alt="2" src="https://user-images.githubusercontent.com/10333549/118406372-6e06c900-b641-11eb-961a-9834665cae5f.png">
+
+### Adding new DXF file
+
+Any DXF can be used, in this example, the original file is hosted in this site: https://ceco.net
+
+1- Install `ogr2ogr` (https://gdal.org/programs/ogr2ogr.html)
+
+2- Download this file: [blue-print.dxf.zip](https://github.com/cortiz37/geojson-tiles/files/6489996/blue-print.dxf.zip)
+   (original source: https://ceco.net/autocad-blocks/architecture/top-plan-view/autocad-drawing-fallingwater-house-second-floor-dwg-dxf-54)
+
+3- Extract the .zip file
+
+4- Run `ogr2ogr -f GeoJSON -sql 'select *,ogr_style as style from entities' blue-print.json blue-print.dxf`
+
+5- Copy the `blue-print.json` file into `/data/demo`
+
+6- Start the server
+
+7- Go to http://localhost:3000/ and select *Render in browser* or *Render in server*
+
+8- Select `demo` as **Workspace** and `blue-print` as **Tiles**
+
+<img width="1440" alt="1" src="https://user-images.githubusercontent.com/10333549/118412171-280c2e00-b65e-11eb-8b8c-b6cdc887e602.png">
+
+<img width="1440" alt="2" src="https://user-images.githubusercontent.com/10333549/118412181-32c6c300-b65e-11eb-80a1-f53bcd4be33a.png">
+
+<img width="1440" alt="3" src="https://user-images.githubusercontent.com/10333549/118412192-3d815800-b65e-11eb-81e1-9d92750d4475.png">
