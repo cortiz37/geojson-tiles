@@ -1,5 +1,13 @@
 # geojson tiles
 
+### Build & Run
+
+- `npm install`
+- `node server.js`
+
+<img width="501" alt="3" src="https://user-images.githubusercontent.com/10333549/118406780-f46fda80-b642-11eb-9757-726e3b3b1df1.png">
+
+
 ### Configuration
 All the possible configuration variables are located on `./api/util/constants.js`, and `.env` file.
 
