@@ -19,7 +19,7 @@
     "express-fileupload": "^1.2.1",
     "lru-cache": "^6.0.0",
     "mkdir-recursive": "^0.4.0",
-    "npm": "^7.13.0",
+    "npm": "^8.17.0",
     "pug": "^3.0.2"
   }
 }
